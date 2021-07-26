@@ -55,7 +55,7 @@ void setup() {
 #else
   Wire.begin();
 #endif
-  Serial.println(I2Ctest());
+  Serial.println(I2Ctest());// device should be 0x48
   delay(10000);
 }
 static const int port = 0x48;
@@ -67,10 +67,10 @@ static const char readRegister(char value)
   unsigned char c;
   Wire.beginTransmission(port);
   // device address is specified in datasheet
-  Wire.write(value);             // sends value byte
+  Wire.write(value);          // sends value byte
   Wire.endTransmission();     // stop transmitting
 
-  Wire.requestFrom(port, 1);    // request 6 bytes from slave device #2
+  Wire.requestFrom(port, 1);   
 
   unsigned char ret;
   while (Wire.available() )
@@ -85,17 +85,13 @@ static const char readRegister(char value)
 
 static void Whoami()
 {
-  // put your main code here, to run repeatedly:
-
-
   unsigned char c = readRegister(0);             // sends value byte
   Serial.printf("who am i[0]==0x49\t\t0x%x\n", c);
 }
 
 static void Information()
 {
-
-  unsigned char c = readRegister( 1);   // request 6 bytes from slave device #2
+  unsigned char c = readRegister( 1);  
   Serial.printf("Information[0x1:1]==0x31\t0x%x\n", c);
 }
 
@@ -109,7 +105,6 @@ static void FIFO_Status()
     unsigned int FIFO_Event : 1;
   } _status;
 
-
   union a {
     unsigned    char val;
     _status reg;
@@ -117,7 +112,6 @@ static void FIFO_Status()
 
   k.val =  readRegister(2);           // sends value byte
   Serial.printf("FIF0 status[0x2:1]\t\t0x%02x\tEvent=%x Stored=%x\n", k.val, k.reg.FIFO_Event, k.reg.FIFI_Stored );
-
 }
 
 
@@ -161,10 +155,10 @@ static void readPressure()
   Serial.print("\nPressure[4:3]=");
   Wire.beginTransmission(port);
   // device address is specified in datasheet
-  Wire.write(4);             // sends value byte
+  Wire.write(4);              // sends value byte
   Wire.endTransmission();     // stop transmitting
 
-  Wire.requestFrom(port, 3);    // request 6 bytes from slave device #2
+  Wire.requestFrom(port, 3);    
 
   while (Wire.available())   // slave may send less than requested
   {
@@ -183,10 +177,10 @@ static void   readTemperature()
   Serial.print("\nTemperature[9:2]=");
   Wire.beginTransmission(port);
   // device address is specified in datasheet
-  Wire.write(9);             // sends value byte
+  Wire.write(9);              // sends value byte
   Wire.endTransmission();     // stop transmitting
 
-  Wire.requestFrom(port, 2);    // request 6 bytes from slave device #2
+  Wire.requestFrom(port, 2);   
 
   while (Wire.available())   // slave may send less than requested
   {
@@ -201,14 +195,9 @@ void loop() {
 
   Whoami();
   Information();
-  delay(1000);
-
-
   FIFO_Status();
   Status();
-
   readProduct();
-
 
   static const unsigned char cmd = 0b1010;
   Serial.printf("WRITE Action Control[0x10]\t0x%02x\n", cmd);
